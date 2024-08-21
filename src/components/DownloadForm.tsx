@@ -1,4 +1,4 @@
-import React, { FormEvent, useState, useEffect, useRef } from 'react';
+import React, { FormEvent, useState, useEffect, useRef } from 'react'
 import {
   Button,
   LinearProgress,
@@ -13,79 +13,78 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from '@mui/material';
-import { CloudDownload } from '@mui/icons-material';
-import { toast } from 'react-toastify';
-import { download } from 'nanoseek';
-import constants from '../utils/constants';
-import { SelectChangeEvent } from '@mui/material';
+} from '@mui/material'
+import { CloudDownload } from '@mui/icons-material'
+import { toast } from 'react-toastify'
+import { download } from 'nanoseek'
+import constants from '../utils/constants'
+import { SelectChangeEvent } from '@mui/material'
 
 interface DownloadFormProps { }
 
 const DownloadForm: React.FC<DownloadFormProps> = () => {
-  const [confederacyURL, setConfederacyURL] = useState<string>('');
-  const [confederacyURLs, setConfederacyURLs] = useState<string[]>(constants.confederacyURLs.map(x => x.toString()));
-  const [downloadURL, setDownloadURL] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [inputsValid, setInputsValid] = useState<boolean>(false);
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [newOption, setNewOption] = useState<string>('');
+  const [overlayServiceURL, setOverlayServiceURL] = useState<string>('')
+  const [overlayServiceURLs, setOverlayServiceURLs] = useState<string[]>(constants.confederacyURLs.map(x => x.toString()))
+  const [downloadURL, setDownloadURL] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [inputsValid, setInputsValid] = useState<boolean>(false)
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
+  const [newOption, setNewOption] = useState<string>('')
 
   useEffect(() => {
-    setInputsValid(confederacyURL.trim() !== '' && downloadURL.trim() !== '');
-  }, [confederacyURL, downloadURL]);
+    setInputsValid(overlayServiceURL.trim() !== '' && downloadURL.trim() !== '')
+  }, [overlayServiceURL, downloadURL])
 
   useEffect(() => {
     if (constants.confederacyURLs && constants.confederacyURLs.length > 0) {
-      setConfederacyURL(constants.confederacyURLs[0].toString());
+      setOverlayServiceURL(constants.confederacyURLs[0].toString())
     }
-  }, []);
+  }, [])
 
   const handleDownload = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     try {
-      const { mimeType, data } = await download({
-        UHRPUrl: downloadURL.trim() || '',
-        confederacyHost: confederacyURL.trim(),
-      });
-      const blob = new Blob([data], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = downloadURL.trim() || 'download';
+      // TODO: Upload to make use of the nanoseek download function to download the file from an Overlay Service.
+      const { mimeType, data } = { mimeType: 'unknown', data: 'unknown' }
 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const blob = new Blob([data], { type: mimeType })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = downloadURL.trim() || 'download'
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     } catch (error) {
-      toast.error('An error occurred during download');
+      toast.error('An error occurred during download')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
-    const selectedValue = event.target.value;
+    const selectedValue = event.target.value
     if (selectedValue === 'add-new-option') {
-      setOpenDialog(true);
+      setOpenDialog(true)
     } else {
-      setConfederacyURL(selectedValue);
+      setOverlayServiceURL(selectedValue)
     }
-  };
+  }
 
   const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
+    setOpenDialog(false)
+  }
 
   const handleAddOption = () => {
     if (newOption.trim() !== '' && !constants.confederacyURLs.includes(newOption)) {
-      setConfederacyURLs(prevConfederacyURLs => [...prevConfederacyURLs, newOption]);
-      setConfederacyURL(newOption)
+      setOverlayServiceURLs(prevConfederacyURLs => [...prevConfederacyURLs, newOption])
+      setOverlayServiceURL(newOption)
       setNewOption('')
       setOpenDialog(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleDownload}>
@@ -98,13 +97,13 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
         </Grid>
         <Grid item xs={12}>
           <FormControl fullWidth variant='outlined'>
-            <InputLabel>Confederacy Resolver URL</InputLabel>
+            <InputLabel>Overlay Service URL</InputLabel>
             <Select
-              value={confederacyURL}
+              value={overlayServiceURL}
               onChange={handleSelectChange}
-              label='Confederacy Resolver URL'
+              label='Overlay Service URL'
             >
-              {confederacyURLs.map((url, index) => (
+              {overlayServiceURLs.map((url, index) => (
                 <MenuItem key={index} value={url.toString()}>
                   {url.toString()}
                 </MenuItem>
@@ -162,8 +161,8 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
         </Grid>
       </Grid>
     </form>
-  );
-};
+  )
+}
 
 
-export default DownloadForm;
+export default DownloadForm

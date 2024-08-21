@@ -20,7 +20,7 @@ import { toast } from 'react-toastify'
 import { publishFile } from 'nanostore-publisher'
 import constants from '../utils/constants'
 
-interface UploadFormProps {}
+interface UploadFormProps { }
 
 const UploadForm: React.FC<UploadFormProps> = () => {
   const [nanostoreURL, setNanostoreURL] = useState<string>('')
@@ -59,17 +59,8 @@ const UploadForm: React.FC<UploadFormProps> = () => {
     setLoading(true)
     setActionTXID('')
     try {
-      const uploadResult = await publishFile({
-        config: {
-          nanostoreURL: nanostoreURL
-        },
-        file: file!,
-        retentionPeriod: hostingMinutes,
-        progressTracker: (prog: ProgressEvent) => {
-          const progress = prog.total > 0 ? (prog.loaded / prog.total) * 100 : 0
-          setUploadProgress(progress)
-        }
-      })
+      // TODO: Make use of publishFile to upload the file to NanoStore.
+      const uploadResult = { hash: 'unknown', publicURL: 'unknown' }
 
       // Handle upload success
       setResults({
