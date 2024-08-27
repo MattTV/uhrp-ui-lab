@@ -19,6 +19,7 @@ import { toast } from 'react-toastify'
 import { download } from 'nanoseek'
 import constants from '../utils/constants'
 import { SelectChangeEvent } from '@mui/material'
+import { Img } from 'uhrp-react'
 
 interface DownloadFormProps { }
 
@@ -45,8 +46,11 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
     e.preventDefault()
     setLoading(true)
     try {
-      // TODO: Upload to make use of the nanoseek download function to download the file from an Overlay Service.
-      const { mimeType, data } = { mimeType: 'unknown', data: 'unknown' }
+      // Upload to make use of the nanoseek download function to download the file from an Overlay Service.
+      const { mimeType, data } = await download({
+        UHRPUrl: downloadURL.trim() || '',
+        confederacyHost: overlayServiceURL.trim(),
+      })
 
       const blob = new Blob([data], { type: mimeType })
       const url = URL.createObjectURL(blob)
@@ -87,80 +91,87 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
   }
 
   return (
-    <form onSubmit={handleDownload}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Typography variant='h4'>Download Form</Typography>
-          <Typography color='textSecondary' paragraph>
-            Download files from NanoStore
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <FormControl fullWidth variant='outlined'>
-            <InputLabel>Overlay Service URL</InputLabel>
-            <Select
-              value={overlayServiceURL}
-              onChange={handleSelectChange}
-              label='Overlay Service URL'
-            >
-              {overlayServiceURLs.map((url, index) => (
-                <MenuItem key={index} value={url.toString()}>
-                  {url.toString()}
-                </MenuItem>
-              ))}
-              <MenuItem value='add-new-option'>+ Add New Option</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            variant='outlined'
-            label='UHRP URL'
-            value={downloadURL}
-            onChange={(e) => setDownloadURL(e.target.value)}
-          />
-          <Grid />
+    <>
+      <form onSubmit={handleDownload}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant='h4'>Download Form</Typography>
+            <Typography color='textSecondary' paragraph>
+              Download files from NanoStore
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth variant='outlined'>
+              <InputLabel>Overlay Service URL</InputLabel>
+              <Select
+                value={overlayServiceURL}
+                onChange={handleSelectChange}
+                label='Overlay Service URL'
+              >
+                {overlayServiceURLs.map((url, index) => (
+                  <MenuItem key={index} value={url.toString()}>
+                    {url.toString()}
+                  </MenuItem>
+                ))}
+                <MenuItem value='add-new-option'>+ Add New Option</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              variant='outlined'
+              label='UHRP URL'
+              value={downloadURL}
+              onChange={(e) => setDownloadURL(e.target.value)}
+            />
+            <Grid />
 
-          {/* Dialog for adding a new option */}
-          <Dialog open={openDialog} onClose={handleCloseDialog}>
-            <DialogTitle>Add a New Confederacy Resolver URL</DialogTitle>
-            <DialogContent>
-              <TextField
-                autoFocus
-                margin='dense'
-                label='URL'
-                type='text'
-                fullWidth
-                value={newOption}
-                onChange={(e) => setNewOption(e.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog}>Cancel</Button>
-              <Button onClick={handleAddOption}>Add</Button>
-            </DialogActions>
-          </Dialog>
+            {/* Dialog for adding a new option */}
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+              <DialogTitle>Add a New Confederacy Resolver URL</DialogTitle>
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  margin='dense'
+                  label='URL'
+                  type='text'
+                  fullWidth
+                  value={newOption}
+                  onChange={(e) => setNewOption(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button onClick={handleAddOption}>Add</Button>
+              </DialogActions>
+            </Dialog>
+          </Grid>
+          <Grid item>
+            <Button
+              variant='contained'
+              color='primary'
+              size='large'
+              type='submit'
+              disabled={loading || !inputsValid}
+              startIcon={<CloudDownload />}
+            >
+              Download
+            </Button>
+            {loading && (
+              <Grid item xs={12}>
+                <LinearProgress />
+              </Grid>
+            )}
+          </Grid>
         </Grid>
-        <Grid item>
-          <Button
-            variant='contained'
-            color='primary'
-            size='large'
-            type='submit'
-            disabled={loading || !inputsValid}
-            startIcon={<CloudDownload />}
-          >
-            Download
-          </Button>
-          {loading && (
-            <Grid item xs={12}>
-              <LinearProgress />
-            </Grid>
-          )}
-        </Grid>
-      </Grid>
-    </form>
+      </form>
+      <Img
+        src={downloadURL}
+        loading={<div>Loading...</div>}
+        confederacyHost={overlayServiceURL}
+      />
+    </>
   )
 }
 

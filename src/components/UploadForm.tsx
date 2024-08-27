@@ -59,8 +59,18 @@ const UploadForm: React.FC<UploadFormProps> = () => {
     setLoading(true)
     setActionTXID('')
     try {
-      // TODO: Make use of publishFile to upload the file to NanoStore.
-      const uploadResult = { hash: 'unknown', publicURL: 'unknown' }
+      // use publishFile to upload the file to NanoStore.
+      const uploadResult = await publishFile({
+        config: {
+          nanostoreURL: 'https://staging-nanostore.babbage.systems',
+        },
+        file: file!,
+        retentionPeriod: hostingMinutes,
+        progressTracker: (prog: ProgressEvent) => {
+          const progress = prog.total > 0 ? (prog.loaded / prog.total) * 100 : 0
+          setUploadProgress(progress)
+        }
+      })
 
       // Handle upload success
       setResults({
